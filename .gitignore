@@ -1,0 +1,25 @@
+# Generated test artifacts
+results/*
+
+# Local reference material
+mini_hil_project_plan.pdf
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# MATLAB / Simulink generated files
+slprj/
+*.slxc
+*.asv
+*.autosave
+
+# Embedded build outputs and IDE metadata
+build/
+Debug/
+Release/
+.vscode/
+.idea/
+.DS_Store
