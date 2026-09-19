@@ -6,6 +6,7 @@
 #define LED_TOGGLE_TICKS 500U
 
 #define PLANT_STEP_S (1.0f / PLANT_RATE_HZ)
+#define PLANT_TICK_BUDGET_CYCLES (SystemCoreClock / PLANT_RATE_HZ)
 
 static volatile float armature_current_a = 0.0f;
 static volatile float angular_speed_rad_s = 0.0f;
@@ -15,6 +16,10 @@ static volatile float load_torque_nm = 0.0f;
 
 static volatile uint32_t plant_tick_count = 0U;
 static volatile uint32_t overrun_count = 0U;
+static volatile uint32_t plant_last_execution_cycles = 0U;
+static volatile uint32_t plant_max_execution_cycles = 0U;
+static volatile uint64_t plant_total_execution_cycles = 0U;
+static volatile uint32_t plant_execution_samples = 0U;
 
 static const XMC_CCU4_SLICE_COMPARE_CONFIG_t timer_config = {
     .timer_mode = XMC_CCU4_SLICE_TIMER_COUNT_MODE_EA,
@@ -51,12 +56,30 @@ static void plant_step(void)
 void CCU40_0_IRQHandler(void)
 {
   static uint32_t heartbeat_ticks = 0U;
+  const uint32_t start_cycles = DWT->CYCCNT;
+  uint32_t execution_cycles;
 
   XMC_CCU4_SLICE_ClearEvent(
       CCU40_CC40, XMC_CCU4_SLICE_IRQ_ID_PERIOD_MATCH);
 
   plant_tick_count++;
   plant_step();
+
+  execution_cycles = DWT->CYCCNT - start_cycles;
+  plant_last_execution_cycles = execution_cycles;
+  plant_total_execution_cycles += execution_cycles;
+  plant_execution_samples++;
+
+  if (execution_cycles > plant_max_execution_cycles)
+  {
+    plant_max_execution_cycles = execution_cycles;
+  }
+
+  if (execution_cycles > PLANT_TICK_BUDGET_CYCLES)
+  {
+    overrun_count++;
+  }
+
   heartbeat_ticks++;
 
   if (heartbeat_ticks >= LED_TOGGLE_TICKS)
@@ -74,6 +97,13 @@ static void init_led(void)
       .output_strength = XMC_GPIO_OUTPUT_STRENGTH_STRONG_SHARP_EDGE};
 
   XMC_GPIO_Init(XMC_GPIO_PORT1, 0, &led_config);
+}
+
+static void init_cycle_counter(void)
+{
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CYCCNT = 0U;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
 static void init_plant_timer(void)
@@ -104,6 +134,7 @@ static void init_plant_timer(void)
 int main(void)
 {
   init_led();
+  init_cycle_counter();
   init_plant_timer();
 
   while (1)
