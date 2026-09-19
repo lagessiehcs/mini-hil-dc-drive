@@ -20,6 +20,7 @@ slprj/
 build/
 lib_build/
 GDBStudentCommands
+JLinkLog
 Debug/
 Release/
 .vscode/

@@ -87,21 +87,21 @@ LIBSRCS += syscalls.c
 OBJS = $(patsubst %.c,$(BUILDDIR)/%.o,$(SRCS))
 LIBOBJS = $(patsubst %.c,$(LIB_BUILDDIR)/%.o,$(LIBSRCS))
 
-.PHONY: default program debug clean
+.PHONY: default program debug clean check-config
 
 PARENT_DIR := $(notdir $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../))
 NOT_PACKING_STRING_1 := "NOTE: NOT PACKING THE FOLLOWING FILES: "
 NOT_PACKING_STRING_2 := "(if you want to submit them, rename to 'Part[A-Z]' and make sure your *.elf, token, or exploit is present)"
 
-default: $(BUILDDIR)/main.elf $(BUILDDIR)/main.lst
+default: check-config $(BUILDDIR)/main.elf $(BUILDDIR)/main.lst
 
-program: $(BUILDDIR)/main.hex $(BUILDDIR)/JLinkCommands
+program: check-config $(BUILDDIR)/main.hex $(BUILDDIR)/JLinkCommands
 	JLinkExe -Device XMC$(XMC_SERIES) -If SWD -Speed 1000 -CommanderScript $(BUILDDIR)/JLinkCommands
 
 test: serialtest.py
 	@python3 serialtest.py && echo "Passed."
 
-debug: $(BUILDDIR)/main.elf $(BUILDDIR)/GDBCommands GDBStudentCommands
+debug: check-config $(BUILDDIR)/main.elf $(BUILDDIR)/GDBCommands GDBStudentCommands
 	echo "##### Debug session started at $(date) #####" >JLinkLog
 	JLinkGDBServer -device XMC$(XMC_SERIES) -endian little -if SWD -speed 1000 -halt -logtofile -log JLinkLog -silent -vd &
 	sleep 1
@@ -171,3 +171,21 @@ clean:
 
 clean_all:
 	rm -rf $(BUILDDIR) $(LIB_BUILDDIR)
+
+check-config:
+	@for source in $(SRCS); do \
+		if [ ! -f "$$source" ]; then \
+			echo "ERROR: Project source '$$source' listed in SRCS was not found. Check project.mk."; \
+			exit 1; \
+		fi; \
+	done
+	@for source in $(filter-out startup_XMC$(XMC_SERIES).c,$(LIBSRCS)); do \
+		found=0; \
+		for directory in . $(subst :, ,$(VPATH)); do \
+			if [ -f "$$directory/$$source" ]; then found=1; break; fi; \
+		done; \
+		if [ "$$found" -ne 1 ]; then \
+			echo "ERROR: Library source '$$source' listed in LIBSRCS was not found. Check project.mk."; \
+			exit 1; \
+		fi; \
+	done
