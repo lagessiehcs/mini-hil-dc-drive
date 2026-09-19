@@ -20,12 +20,22 @@ The bench runs continuously. The 10 ms value is the controller-update interval, 
 
 ## Repository layout
 
-- `docs/` — requirements, architecture, model assumptions, and test evidence.
+- `docs/` — requirements, architecture, model assumptions, test evidence, and the [XMC toolchain setup guide](docs/xmc-toolchain.md).
 - `model/` — MATLAB scripts and Simulink model files.
 - `xmc-hil/` — XMC real-time plant firmware.
 - `arduino-ecu/` — Arduino controller firmware.
 - `tests/` — Python test automation and test definitions.
 - `results/` — generated logs, plots, and reports (not source assets).
+
+## XMC examples
+
+Set up the compiler, J-Link, and XMClib with the [XMC toolchain guide](docs/xmc-toolchain.md). To build and flash the hardware test example:
+
+```sh
+cd xmc-hil/example_projects/example_hw_test
+make
+make program
+```
 
 ## Working conventions
 

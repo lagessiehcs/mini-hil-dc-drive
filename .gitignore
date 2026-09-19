@@ -18,6 +18,8 @@ slprj/
 
 # Embedded build outputs and IDE metadata
 build/
+lib_build/
+GDBStudentCommands
 Debug/
 Release/
 .vscode/
