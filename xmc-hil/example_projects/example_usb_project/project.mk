@@ -1,4 +1,4 @@
-##### Student Makefile for the ESS deliverables #####
+##### Project build configuration #####
 # Change this file to match your requirements
 
 # Name of your project

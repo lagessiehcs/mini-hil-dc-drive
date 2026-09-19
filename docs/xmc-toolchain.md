@@ -109,9 +109,9 @@ Try compiling the given example_project.
 
 1. Write your program as you are used to. Be aware of the specialties of embedded programming, e.g. your main.c must never terminate and gets no argc, argv.
 
-2. Copy Makefile and student.mk into project directory.
+2. Copy Makefile and project.mk into project directory.
 
-3. Setup student.mk
+3. Set up project.mk
   * Adapt path in symbol `XMC_LIBDIR` if you chose another location during installation.
   * Choose a name for the linker description file in symbol `LDname`. What name is not important, but many people use the project's name.
   * If necessary, change remaining settings in symbol `SCFLAGS` according to your wishes.
@@ -373,7 +373,7 @@ sudo mkdir -p /opt/XMClib
 sudo git clone https://github.com/PromyLOPh/xmclib.git /opt/XMClib
 ```
 
-Set `XMC_LIBDIR` in `student.mk`:
+Set `XMC_LIBDIR` in `project.mk`:
 
 ```
 XMC_LIBDIR = /opt/XMClib

@@ -1,7 +1,7 @@
 ##### Makefile for the ESS deliverables #####
 # DO NOT CHANGE THIS FILE, IT WILL BE REPLACED BY THE ORIGINAL VERSION BEFORE GRADING #
 
-include student.mk
+include project.mk
 
 # Compiler
 CROSS_COMPILE=arm-none-eabi
@@ -57,7 +57,7 @@ CFLAGS += -c
 CFLAGS += -Wa,-adhlns="$@.lst"
 # Until here all options are also necessary for compiling startup_XMC4500.S
 SFLAGS = $(CFLAGS)
-# Add student options, so -Wall comes after and overrides any possible -Wnone or so
+# Add project options, so -Wall comes after and overrides any possible -Wnone or so
 CFLAGS +=$(SCFLAGS)
 # Enable standard warnings for both
 SFLAGS += -Wall
@@ -130,7 +130,7 @@ $(LIB_BUILDDIR)/%.o: %.c | $(LIB_BUILDDIR)
 $(LIB_BUILDDIR)/startup_XMC$(XMC_SERIES).o: $(XMC_LIBDIR)/CMSIS/Infineon/XMC$(XMC_SERIES)_series/Source/GCC/startup_XMC$(XMC_SERIES).S | $(LIB_BUILDDIR)
 	$(CC) $(SFLAGS) -o $@ $<
 
-# When copying the linker description file, see if there is one created by the student and only if not copy the one from the library
+# When copying the linker description file, use a project-specific file when present; otherwise copy the library file
 $(BUILDDIR)/$(LD_NAME).ld: $(XMC_LIBDIR)/CMSIS/Infineon/XMC$(XMC_SERIES)_series/Source/GCC/XMC$(XMC_SERIES)x$(XMC_SIZE).ld | $(BUILDDIR)
 	if [ -f "$(LD_NAME).ld" ] ; then cp -p "$(LD_NAME).ld" $@ ; else cp -p $< $@ ; fi
 
